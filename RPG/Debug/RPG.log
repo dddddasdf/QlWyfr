@@ -1,0 +1,4 @@
+﻿  Game.cpp
+e:\github\parksohyeon\과제제출\rpg\mapdraw.h(19): warning C4838: 'int'에서 'SHORT'(으)로의 변환에는 축소 변환이 필요합니다.
+e:\github\parksohyeon\과제제출\rpg\game.h(72): warning C4838: 'int'에서 'SHORT'(으)로의 변환에는 축소 변환이 필요합니다.
+  RPG.vcxproj -> E:\GitHub\ParkSoHyeon\과제제출\RPG\Debug\RPG.exe
