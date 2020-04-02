@@ -49,27 +49,33 @@ void Menu::NewGame()
 {
 	MenuMap.BoxErase(WIDTH, HEIGHT);
 
+	RolePlaying = new Game;
+
 	string sNewPlayer;
 	gotoxy(15, 14);
 	cout << "유저 이름 입력: ";
 	cin >> sNewPlayer;
 
-	RolePlaying.GetName(sNewPlayer);
-	if (RolePlaying.LoadDefaultUserData() == false)
+	RolePlaying->GetName(sNewPlayer);
+	if (RolePlaying->LoadDefaultUserData() == false)
 		return;	//유저 정보 초기화 과정에서 텍스트 파일이 없을 경우 새 게임을 진행하지 않고 메인 화면으로 돌아감
 
-	if (RolePlaying.InitMonsterData() == false)
+	if (RolePlaying->InitMonsterData() == false)
 		return;	//위와 마찬가지
 
-	if (RolePlaying.InitWeaponData() == false)
+	if (RolePlaying->InitWeaponData() == false)
 		return;
 
-	RolePlaying.TownMenu();
+	RolePlaying->TownMenu();
+
+	delete RolePlaying;
 }
 
 void Menu::LoadData()
 {
 	int iSelect;
+
+	RolePlaying = new Game;
 
 	while (1)
 	{
@@ -122,13 +128,13 @@ void Menu::LoadData()
 			DataCheck.open(sFileName);
 			if (DataCheck.is_open())
 			{
-				if (RolePlaying.LoadUserData(iSelect) == false)
+				if (RolePlaying->LoadUserData(iSelect) == false)
 					return;	//유저 정보 초기화 과정에서 텍스트 파일이 없을 경우 새 게임을 진행하지 않고 메인 화면으로 돌아감
 
-				if (RolePlaying.InitMonsterData() == false)
+				if (RolePlaying->InitMonsterData() == false)
 					return;	//위와 마찬가지
 
-				if (RolePlaying.InitWeaponData() == false)
+				if (RolePlaying->InitWeaponData() == false)
 					return;
 
 				gotoxy(17, 15);
@@ -138,7 +144,7 @@ void Menu::LoadData()
 
 					Sleep(1000);
 
-				RolePlaying.TownMenu();
+				RolePlaying->TownMenu();
 
 				return;
 			}
@@ -159,6 +165,8 @@ void Menu::LoadData()
 			return;
 		}
 	}
+
+	delete RolePlaying;
 }
 
 

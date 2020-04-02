@@ -7,7 +7,7 @@ class Menu
 {
 private:
 	MapDraw MenuMap;
-	Game RolePlaying;
+	Game *RolePlaying;
 public:
 	Menu();
 	void PrintMainMenu();

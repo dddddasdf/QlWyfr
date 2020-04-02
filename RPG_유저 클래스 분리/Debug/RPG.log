@@ -1,0 +1,13 @@
+﻿  Menu.cpp
+e:\github\qlwyfr\rpg_유저 클래스 분리\mapdraw.h(19): warning C4838: 'int'에서 'SHORT'(으)로의 변환에는 축소 변환이 필요합니다.
+e:\github\qlwyfr\rpg_유저 클래스 분리\user.h(62): warning C4838: 'int'에서 'SHORT'(으)로의 변환에는 축소 변환이 필요합니다.
+e:\github\qlwyfr\rpg_유저 클래스 분리\game.h(82): warning C4838: 'int'에서 'SHORT'(으)로의 변환에는 축소 변환이 필요합니다.
+e:\github\qlwyfr\rpg_유저 클래스 분리\menu.h(18): warning C4838: 'int'에서 'SHORT'(으)로의 변환에는 축소 변환이 필요합니다.
+  메인.cpp
+e:\github\qlwyfr\rpg_유저 클래스 분리\mapdraw.h(19): warning C4838: 'int'에서 'SHORT'(으)로의 변환에는 축소 변환이 필요합니다.
+e:\github\qlwyfr\rpg_유저 클래스 분리\user.h(62): warning C4838: 'int'에서 'SHORT'(으)로의 변환에는 축소 변환이 필요합니다.
+e:\github\qlwyfr\rpg_유저 클래스 분리\game.h(82): warning C4838: 'int'에서 'SHORT'(으)로의 변환에는 축소 변환이 필요합니다.
+e:\github\qlwyfr\rpg_유저 클래스 분리\menu.h(18): warning C4838: 'int'에서 'SHORT'(으)로의 변환에는 축소 변환이 필요합니다.
+e:\github\qlwyfr\rpg_유저 클래스 분리\메인.cpp(7): warning C4326: 'main'의 반환 형식이 'int'이어야 하는데 'void'입니다.
+  코드를 생성하고 있습니다...
+  RPG.vcxproj -> E:\GitHub\QlWyfr\RPG_유저 클래스 분리\Debug\RPG.exe

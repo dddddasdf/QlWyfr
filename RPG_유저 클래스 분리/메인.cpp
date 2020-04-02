@@ -13,6 +13,7 @@ void main()
 	system("mode con lines=31 cols=62");
 	srand((unsigned)time(NULL));
 
-	Menu Game;
-	Game.PrintMainMenu();
+	Menu *Game;
+	Game = new Menu;
+	Game->PrintMainMenu();
 }
