@@ -68,7 +68,7 @@ void Weapon::InitWeaponInt(WeaponStruct *MakeWeaponArr, int WeaponNumber, int We
 	}
 }
 
-int Weapon::PrintWeaponList(int HaveGold, int WeaponType, int WeaponNumber, WeaponStruct *ChangeWeapon, WeaponStruct *TypeWeapon)
+int Weapon::PrintWeaponList(int HaveGold, int WeaponType, int WeaponNumber, int ChangeWeaponType, int ChangeWeaponIndex, WeaponStruct *TypeWeapon)
 {
 	int iSelect;
 
@@ -120,26 +120,22 @@ int Weapon::PrintWeaponList(int HaveGold, int WeaponType, int WeaponNumber, Weap
 
 		iSelect = MenuSelectCursor(WeaponNumber + 3, 3, 3, 3);
 
+		//아래는 구매 관련 내용
+
 		if (iSelect == WeaponNumber + 3)
-			return 0;
+			return 0;	//이전 메뉴로 돌아가게 변수 돌려줌
 		else if (iSelect == WeaponNumber + 2)
-			return PAGE_NEXT;
+			return PAGE_NEXT;	//다음 페이지
 		else if (iSelect == WeaponNumber + 1)
-			return PAGE_PREVIOUS;
+			return PAGE_PREVIOUS;	//이전 페이지
 		else
 		{
 			if (HaveGold >= TypeWeapon[iSelect -1].iWeaponPrice)
 			{
-				if (!ChangeWeapon->sWeaponName.empty())
-				{
-					ChangeWeapon->sWeaponName.clear();	//유저가 무기를 들고 있으면 문자열 초기화하고 집어 넣어야...
-				}
-				ChangeWeapon->sWeaponName = TypeWeapon[iSelect - 1].sWeaponName;
-				ChangeWeapon->iWeaponPower = TypeWeapon[iSelect - 1].iWeaponPower;
-				ChangeWeapon->iWeaponPrice = TypeWeapon[iSelect - 1].iWeaponPrice;
-				ChangeWeapon->iWeaponType = TypeWeapon[iSelect - 1].iWeaponType;
+				ChangeWeaponType = TypeWeapon[iSelect - 1].iWeaponType;
+				ChangeWeaponIndex = TypeWeapon[iSelect - 1].iWeaponIndex;
 
-				return (TypeWeapon[iSelect - 1].iWeaponPrice);
+				return (TypeWeapon[iSelect - 1].iWeaponPrice);	//구매 완료 및 소지 골드 차감하게끔
 			}
 			else
 				return CANNOT_BUY;	//소지 중인 골드가 무기 가격보다 적으면 구매 못함을 반환
@@ -184,13 +180,16 @@ void Sword::InputSwordData(string WeaponName, int WeaponPrice, int WeaponPower)
 	SwordArr[i].iWeaponPrice = WeaponPrice;
 	SwordArr[i].iWeaponPower = WeaponPower;*/
 
+	SwordStruct[m_iSwordIndex].iWeaponIndex = m_iSwordIndex;
+	m_iSwordIndex++;
+
 	InputWeaponData(WeaponName, WeaponPrice, WeaponPower, m_iSwordCount, SwordStruct);
 }
 
-int Sword::PrintSwordList(int HaveGold, WeaponStruct *ChangeWeapon)
+int Sword::PrintSwordList(int HaveGold, int *WeaponType, int *WeaponIndex)
 {
 	int iReturnConstant;
-	iReturnConstant = PrintWeaponList(HaveGold, TYPE_SWORD, m_iSwordCount, ChangeWeapon, SwordStruct);
+	iReturnConstant = PrintWeaponList(HaveGold, TYPE_SWORD, m_iSwordCount, *WeaponType, *WeaponIndex, SwordStruct);
 
 	return iReturnConstant;
 }
@@ -207,10 +206,10 @@ void Bow::InputBowData(string WeaponName, int WeaponPrice, int WeaponPower)
 	InputWeaponData(WeaponName, WeaponPrice, WeaponPower, m_iBowCount, BowStruct);
 }
 
-int Bow::PrintBowList(int HaveGold, WeaponStruct *ChangeWeapon)
+int Bow::PrintBowList(int HaveGold, int *WeaponType, int *WeaponIndex)
 {
 	int iReturnConstant;
-	iReturnConstant = PrintWeaponList(HaveGold, TYPE_BOW, m_iBowCount, ChangeWeapon, BowStruct);
+	iReturnConstant = PrintWeaponList(HaveGold, TYPE_BOW, m_iBowCount, *WeaponType, *WeaponIndex, BowStruct);
 
 	return iReturnConstant;
 }
@@ -236,10 +235,10 @@ void Dagger::InputDaggerData(string WeaponName, int WeaponPrice, int WeaponPower
 	InputWeaponData(WeaponName, WeaponPrice, WeaponPower, m_iDaggerCount, DaggerStruct);
 }
 
-int Dagger::PrintDaggerList(int HaveGold, WeaponStruct *ChangeWeapon)
+int Dagger::PrintDaggerList(int HaveGold, int *WeaponType, int *WeaponIndex)
 {
 	int iReturnConstant;
-	iReturnConstant = PrintWeaponList(HaveGold, TYPE_DAGGER, m_iDaggerCount, ChangeWeapon, DaggerStruct);
+	iReturnConstant = PrintWeaponList(HaveGold, TYPE_DAGGER, m_iDaggerCount, *WeaponType, *WeaponIndex, DaggerStruct);
 
 	return iReturnConstant;
 }
@@ -256,10 +255,10 @@ void Gun::InputGunData(string WeaponName, int WeaponPrice, int WeaponPower)
 	InputWeaponData(WeaponName, WeaponPrice, WeaponPower, m_iGunCount, GunStruct);
 }
 
-int Gun::PrintGunList(int HaveGold, WeaponStruct *ChangeWeapon)
+int Gun::PrintGunList(int HaveGold, int *WeaponType, int *WeaponIndex)
 {
 	int iReturnConstant;
-	iReturnConstant = PrintWeaponList(HaveGold, TYPE_GUN, m_iGunCount, ChangeWeapon, GunStruct);
+	iReturnConstant = PrintWeaponList(HaveGold, TYPE_GUN, m_iGunCount, *WeaponType, *WeaponIndex, GunStruct);
 
 	return iReturnConstant;
 }
@@ -276,10 +275,10 @@ void Wand::InputWandData(string WeaponName, int WeaponPrice, int WeaponPower)
 	InputWeaponData(WeaponName, WeaponPrice, WeaponPower, m_iWandCount, WandStruct);
 }
 
-int Wand::PrintWandList(int HaveGold, WeaponStruct *ChangeWeapon)
+int Wand::PrintWandList(int HaveGold, int *WeaponType, int *WeaponIndex)
 {
 	int iReturnConstant;
-	iReturnConstant = PrintWeaponList(HaveGold, TYPE_WAND, m_iWandCount, ChangeWeapon, WandStruct);
+	iReturnConstant = PrintWeaponList(HaveGold, TYPE_WAND, m_iWandCount, *WeaponType, *WeaponIndex, WandStruct);
 
 	return iReturnConstant;
 }
@@ -296,10 +295,10 @@ void Hammer::InputHammerData(string WeaponName, int WeaponPrice, int WeaponPower
 	InputWeaponData(WeaponName, WeaponPrice, WeaponPower, m_iHammerCount, HammerStruct);
 }
 
-int Hammer::PrintHammerList(int HaveGold, WeaponStruct *ChangeWeapon)
+int Hammer::PrintHammerList(int HaveGold, int *WeaponType, int *WeaponIndex)
 {
 	int iReturnConstant;
-	iReturnConstant = PrintWeaponList(HaveGold, TYPE_HAMMER, m_iHammerCount, ChangeWeapon, HammerStruct);
+	iReturnConstant = PrintWeaponList(HaveGold, TYPE_HAMMER, m_iHammerCount, *WeaponType, *WeaponIndex, HammerStruct);
 
 	return iReturnConstant;
 }

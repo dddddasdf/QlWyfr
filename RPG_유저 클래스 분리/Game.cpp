@@ -22,72 +22,16 @@ Game::Game()
 
 void Game::GetName(string name)
 {
-	InitUserData();
+	Player = new User;
 
-	m_sUserName = name;	//새게임 시작할 때 메뉴 클래스 쪽에서 이름 받아옴
-}
-
-void Game::InitUserData()
-{
-	m_sUserName = "";
-	m_iUserCurrentLife = NULL;
-	m_iUserMaxLife = NULL;
-	m_iUserAttack = NULL;
-	m_iUserCurrentExp = NULL;
-	m_iUserMaxExp = NULL;
-	m_iUserGold = NULL;
-	m_iUserLevel = NULL;
-	m_iHaveWeapon = NULL;
-
-	OwnWeapon = new WeaponStruct;
-	OwnWeapon->sWeaponName = "";
-	OwnWeapon->iWeaponPrice = NULL;
-	OwnWeapon->iWeaponPower = NULL;
-	OwnWeapon->iWeaponType = NULL;
-
-	WeaponPtr = new Weapon;
-	SwordPtr = new Sword;
-	BowPtr = new Bow;
-	DaggerPtr = new Dagger;
-	GunPtr = new Gun;
-	WandPtr = new Wand;
-	HammerPtr = new Hammer;
+	Player->ChangeName(name);
 }
 
 bool Game::LoadDefaultUserData()
 {
-	//디폴트 유저 정보 텍스트 파일 읽어올 때 숫자가 의미하는 순서
-	//공격력 최대생명력 렙업하기위한경험치 현재경험치 레벨 소지골드
-	//코드에서 추가로 설정해줘야 하는 변수 현재경험치 몹한테 주는 경험치 현재생명력
-	
-	ifstream InfoLoad;
-	InfoLoad.open("DefaultUserInfo.txt");
-	if (InfoLoad.is_open())
-	{
-		InfoLoad >> m_iUserAttack;
-		InfoLoad >> m_iUserMaxLife;
-		InfoLoad >> m_iUserMaxExp;
-		InfoLoad >> m_iUserCurrentExp;
-		InfoLoad >> m_iUserLevel;
-		InfoLoad >> m_iUserGold;
-		m_iUserCurrentLife = m_iUserMaxLife;
-		m_iHaveWeapon = WEAPON_NO;
-		return true;
-	}
-	else
-	{
-		GameMap.BoxErase(WIDTH, HEIGHT);
+	bool bIsOpen = Player->LoadDefaultUserData();
 
-		RED
-		gotoxy(26, 14);
-		cout << "에러 발생";
-		gotoxy(6, 16);
-		cout << "플레이어 정보 텍스트 파일을 읽어올 수 없습니다...";
-		ORIGINAL
-
-		system("pause>null");
-		return false;	//디폴트 유저 파일이 없을 경우 에러임을 표시하고 메인 화면으로 돌아간다
-	}
+	return bIsOpen;
 }
 
 bool Game::InitMonsterData()
@@ -159,7 +103,7 @@ bool Game::InitWeaponData()
 	{
 		//정상적으로 파일을 읽었다면 각 무기 개수가 몇개인지 카운트 되어있음
 		//작동 순서: 무기 배열 생성 함수->무기 배열에 지역 변수를 매개 변수로 넣어서 데이터 입력
-		SwordPtr->CreateSwordArr();
+		//SwordPtr->CreateSwordArr();
 		BowPtr->CreateBowArr();
 		DaggerPtr->CreateDaggerArr();
 		GunPtr->CreateGunArr();
@@ -235,47 +179,11 @@ bool Game::LoadUserData(int DataNumber)
 	//변수 순서->유저 이름, 공격력, 최대 생명력, 렙업하기 위한 경험치, 레벨, 골드, 현재 경험치, 현재 생명력
 	//다음 줄은 무기 여부 무기 있으면 1 무기 타입, 무기 이름, 공격력, 가격 / 없으면 0
 
-	ifstream InfoLoad;
-	string sFileName = "SavePlayer" + to_string(DataNumber) + ".txt";
-	InfoLoad.open(sFileName);
-	if (InfoLoad.is_open())
-	{
-		InitUserData();
+	Player = new User;
 
-		InfoLoad >> m_sUserName;
-		InfoLoad >> m_iUserAttack;
-		InfoLoad >> m_iUserMaxLife;
-		InfoLoad >> m_iUserMaxExp;
-		InfoLoad >> m_iUserLevel;
-		InfoLoad >> m_iUserGold;
-		InfoLoad >> m_iUserCurrentExp;
-		InfoLoad >> m_iUserCurrentLife;
-		InfoLoad >> m_iHaveWeapon;
-		if (m_iHaveWeapon == WEAPON_NO)
-			InfoLoad.close();
-		else if (m_iHaveWeapon == WEAPON_OK)
-		{
-			InfoLoad >> OwnWeapon->iWeaponType;
-			InfoLoad >> OwnWeapon->sWeaponName;
-			InfoLoad >> OwnWeapon->iWeaponPower;
-			InfoLoad >> OwnWeapon->iWeaponPrice;
-		}
-		return true;
-	}
-	else
-	{
-		GameMap.BoxErase(WIDTH, HEIGHT);
+	bool bIsOpen = Player->LoadUserData(DataNumber);
 
-		RED
-			gotoxy(26, 14);
-		cout << "에러 발생";
-		gotoxy(6, 16);
-		cout << "플레이어 정보 텍스트 파일을 읽어올 수 없습니다...";
-		ORIGINAL
-
-		system("pause>null");
-		return false;	//디폴트 유저 파일이 없을 경우 에러임을 표시하고 메인 화면으로 돌아간다
-	}
+	return bIsOpen;
 }
 
 //아래부터 게임 메뉴 시작
@@ -487,7 +395,7 @@ void Game::NowBattle(int MonsterNumber)
 		}
 
 		//패배 조건식
-		if (m_iUserCurrentLife == 0)
+		if (Player->ReturnUserInt(VARIABLE_CURRENTLIFE) == 0)
 		{
 			gotoxy(25, OBJECT_Y);
 			BLOOD
@@ -500,20 +408,11 @@ void Game::NowBattle(int MonsterNumber)
 
 			system("pause>null");
 
-			m_iUserCurrentLife = m_iUserMaxLife;
 			MonsterArr[MonsterNumber].MonsterCurrentLife = MonsterArr[MonsterNumber].MonsterMaxLife;
 			
-			if (m_iUserGold >= 10)
-			{
-				double dForfeitGold;	//몰수 골드
-				dForfeitGold = static_cast<double>(m_iUserGold / 10);
-				m_iUserGold -= static_cast<int>(dForfeitGold);	//가진 돈 1/10이 뺏긴다
-			}
-			else if (m_iUserGold > 0 && m_iUserGold < 10)
-			{
-				m_iUserGold--;
-			}
-				
+			Player->ForFeitGold();
+			Player->LifeReset();
+
 			return;
 		}
 
@@ -571,9 +470,9 @@ void Game::Attack(int Attacker, int MonsterNumber)
 	{
 		int iAttackSum;	//무기 공격력과 기존 공격력을 합한 것
 
-		if (m_iHaveWeapon == WEAPON_OK)
+		if (Player->ReturnUserInt(VARIABLE_HAVEWEAPON) == WEAPON_OK)
 		{
-			iAttackSum = m_iUserAttack + OwnWeapon->iWeaponPower;
+			iAttackSum = Player->ReturnUserInt(VARIABLE_ATTACK) + GetWeaponPower();
 		}
 		else
 			iAttackSum = m_iUserAttack;
@@ -585,10 +484,7 @@ void Game::Attack(int Attacker, int MonsterNumber)
 	}
 	else if (Attacker == MONSTER_ATTACK)
 	{
-		if (m_iUserCurrentLife - MonsterArr[MonsterNumber].MonsterAttck >= 0)
-			m_iUserCurrentLife = m_iUserCurrentLife - MonsterArr[MonsterNumber].MonsterAttck;
-		else
-			m_iUserCurrentLife = 0;
+		Player->LifeDamaged(MonsterArr[MonsterNumber].MonsterAttck);
 	}
 }
 
@@ -601,24 +497,24 @@ void Game::ShowUserBattle()
 	ORIGINAL
 
 	gotoxy(15, 4);
-	cout << "이름: " << m_sUserName;
+	cout << "이름: "; Player->ReturnUserName();
 	gotoxy(34, 4);
-	cout << "레벨: " << m_iUserLevel;
+	cout << "레벨: " << Player->ReturnUserInt(VARIABLE_LEVEL);
 	gotoxy(15, 5);
-	cout << "생명력: " << m_iUserCurrentLife << "/" << m_iUserMaxLife;
+	cout << "생명력: " << Player->ReturnUserInt(VARIABLE_CURRENTLIFE) << "/" << Player->ReturnUserInt(VARIABLE_MAXLIFE);
 	gotoxy(34, 5);
 	if (m_iHaveWeapon == WEAPON_OK)
 	{
-		cout << "공격력: " << m_iUserAttack << " + " << OwnWeapon->iWeaponPower;
+		cout << "공격력: " << Player->ReturnUserInt(VARIABLE_ATTACK) << " + " << GetWeaponPower();
 	}
 	else
 	{
-		cout << "공격력: " << m_iUserAttack;
+		cout << "공격력: " << Player->ReturnUserInt(VARIABLE_ATTACK);
 	}
 	gotoxy(15, 6);
-	cout << "경험치: " << m_iUserCurrentExp << "/" << m_iUserMaxExp;
+	cout << "경험치: " << Player->ReturnUserInt(VARIABLE_CURRENTEXP) << "/" << Player->ReturnUserInt(VARIABLE_MAXEXP);
 	gotoxy(34, 6);
-	cout << "소지 골드: " << m_iUserGold;
+	cout << "소지 골드: " << Player->ReturnUserInt(VARIABLE_GOLD);
 }
 
 void Game::ShowMonsterBattle(int MonsterNumber)
@@ -655,36 +551,28 @@ void Game::ShowResult(int MonsterNumber)
 	cout << "획득 골드: " << MonsterArr[MonsterNumber].MonsterDropGold;
 	ORIGINAL
 
-	m_iUserCurrentExp += MonsterArr[MonsterNumber].MonsterDropExp;
-	m_iUserGold += MonsterArr[MonsterNumber].MonsterDropGold;
-
+	bool bIsLevelUp = Player->AcquireReward(MonsterArr[MonsterNumber].MonsterDropExp, MonsterArr[MonsterNumber].MonsterDropGold);
+	
 	system("pause>null");
 
-	if (m_iUserCurrentExp >= m_iUserMaxExp)
+	if (bIsLevelUp == true)
 	{
 		//유저 레벨업
 		GameMap.BoxErase(WIDTH, HEIGHT);
 
+		int iIncreaseAttack;
+		int iIncreaseLife;
+
+		Player->LevelUp(&iIncreaseAttack, &iIncreaseLife);
+
 		GREEN
 		gotoxy(21, 13);
-		m_iUserLevel++;
-		cout << m_iUserLevel <<"레벨로 레벨 업 했다";
-
-		//공격력은 1~5, 생명력은 1~10 중 랜덤한 숫자로 증가
-		int iAttackPlus = (rand() % 4) + 1;
-		int iLifePlus = (rand() % 9) + 1;
-
+		cout << Player->ReturnUserInt(VARIABLE_LEVEL) << "레벨로 레벨 업 했다";
 		gotoxy(24, 15);
-		cout << "공격력 "<< iAttackPlus << " 증가";
+		cout << "공격력 " << iIncreaseAttack << " 증가";
 		gotoxy(21, 17);
-		cout << "최대 생명력 "<< iLifePlus << " 증가";
+		cout << "최대 생명력 " << iIncreaseLife << " 증가";
 		ORIGINAL
-
-		m_iUserAttack += iAttackPlus;
-		m_iUserMaxLife += iLifePlus;
-		m_iUserCurrentExp = 0;
-		m_iUserMaxExp += 3;
-		m_iUserCurrentLife = m_iUserMaxLife;
 
 		system("pause>null");
 	}
@@ -705,47 +593,104 @@ void Game::ShowUserInfo()
 	ORIGINAL
 
 	gotoxy(iXPos, 13);
-	cout << "이름: " << m_sUserName;
+	cout << "이름: "; Player->ReturnUserName();
 	gotoxy(iXPos, 14);
-	cout << "레벨: " << m_iUserLevel;
+	cout << "레벨: " << Player->ReturnUserInt(VARIABLE_LEVEL);
 	gotoxy(iXPos, 15);
-	cout << "생명력: " << m_iUserCurrentLife << "/" << m_iUserMaxLife;
+	cout << "생명력: " << Player->ReturnUserInt(VARIABLE_CURRENTLIFE) << "/" << Player->ReturnUserInt(VARIABLE_MAXLIFE);
 	gotoxy(iXPos, 16);
 	
 	if (m_iHaveWeapon == WEAPON_OK)
 	{
-		cout << "공격력: " << m_iUserAttack << " + " << OwnWeapon->iWeaponPower;
+		int iWeaponPower = GetWeaponPower();
+		cout << "공격력: " << Player->ReturnUserInt(VARIABLE_ATTACK) << " + " << iWeaponPower;
 	}
 	else
 	{
-		cout << "공격력: " << m_iUserAttack;
+		cout << "공격력: " << Player->ReturnUserInt(VARIABLE_ATTACK);
 	}
 
 	gotoxy(iXPos, 17);
-	cout << "경험치: " << m_iUserCurrentExp << "/" << m_iUserMaxExp;
+	cout << "경험치: " << Player->ReturnUserInt(VARIABLE_CURRENTEXP) << "/" << Player->ReturnUserInt(VARIABLE_MAXEXP);
 	gotoxy(iXPos, 18);
-	cout << "소지 골드: " << m_iUserGold;
+	cout << "소지 골드: " << Player->ReturnUserInt(VARIABLE_GOLD);
 
 	if (m_iHaveWeapon == WEAPON_OK)
 	{
 		gotoxy(iXPos, 19);
-		cout << "소지 중인 무기: " << OwnWeapon->sWeaponName;
+		int iWeaponType = Player->ReturnUserInt(VARIABLE_WEAPONTYPE);
+		cout << "소지 중인 무기: ";
+		GetWeaponName();
 
-		if (OwnWeapon->iWeaponType == TYPE_BOW)
+		if (iWeaponType == TYPE_BOW)
 			cout << "(활)";
-		else if (OwnWeapon->iWeaponType == TYPE_DAGGER)
+		else if (iWeaponType == TYPE_DAGGER)
 			cout << "(단검)";
-		else if (OwnWeapon->iWeaponType == TYPE_HAMMER)
+		else if (iWeaponType == TYPE_HAMMER)
 			cout << "(둔기)";
-		else if (OwnWeapon->iWeaponType == TYPE_SWORD)
+		else if (iWeaponType == TYPE_SWORD)
 			cout << "(칼)";
-		else if (OwnWeapon->iWeaponType == TYPE_WAND)
+		else if (iWeaponType == TYPE_WAND)
 			cout << "(원드)";
-		else if (OwnWeapon->iWeaponType == TYPE_GUN)
+		else if (iWeaponType == TYPE_GUN)
 			cout << "(총)";
 	}
 
 	system("pause>null");
+}
+
+void Game::GetWeaponName()
+{
+	int iWeaponType = Player->ReturnUserInt(VARIABLE_WEAPONTYPE);
+	int iWeaponIndex = Player->ReturnUserInt(VARIABLE_WEAPONINDEX);
+
+	string sWeaponName;
+
+	switch (iWeaponType)
+	{
+	case TYPE_DAGGER:
+		sWeaponName = DaggerPtr->ReturnDaggerName(iWeaponIndex);
+		break;
+	case TYPE_GUN:
+		sWeaponName = GunPtr->ReturnGunName(iWeaponIndex);
+		break;
+	case TYPE_WAND:
+		sWeaponName = WandPtr->ReturnWandName(iWeaponIndex);
+		break;
+	case TYPE_SWORD:
+		sWeaponName = SwordPtr->ReturnSwordName(iWeaponIndex);
+		break;
+	case TYPE_HAMMER:
+		sWeaponName = HammerPtr->ReturnHammerName(iWeaponIndex);
+		break;
+	case TYPE_BOW:
+		sWeaponName = BowPtr->ReturnBowName(iWeaponIndex);
+		break;
+	}
+
+	cout << sWeaponName;
+}
+
+int Game::GetWeaponPower()
+{
+	int iWeaponType = Player->ReturnUserInt(VARIABLE_WEAPONTYPE);
+	int iWeaponIndex = Player->ReturnUserInt(VARIABLE_WEAPONINDEX);
+
+	switch (iWeaponType)
+	{
+	case TYPE_DAGGER:
+		return DaggerPtr->ReturnDaggerPower(iWeaponIndex);
+	case TYPE_GUN:
+		return GunPtr->ReturnGunPower(iWeaponIndex);
+	case TYPE_WAND:
+		return WandPtr->ReturnWandPower(iWeaponIndex);
+	case TYPE_SWORD:
+		return SwordPtr->ReturnSwordPower(iWeaponIndex);
+	case TYPE_HAMMER:
+		return HammerPtr->ReturnHammerPower(iWeaponIndex);
+	case TYPE_BOW:
+		return BowPtr->ReturnBowPower(iWeaponIndex);
+	}
 }
 
 void Game::ShowMonsterInfo()
@@ -759,6 +704,7 @@ void Game::ShowMonsterInfo()
 		gotoxy(20, i);
 		cout << "=====" << MonsterArr[j].MonsterName << "(" << MonsterArr[j].MonsterLevel << "Lv)=====";
 		i++;
+
 		gotoxy(14, i);
 		cout << "공격력: " << MonsterArr[j].MonsterAttck;
 		gotoxy(34, i);
@@ -776,6 +722,8 @@ void Game::ShowMonsterInfo()
 	
 	system("pause>null");
 }
+
+//인포 관련 함수 종료
 
 void Game::WeaponShop()
 {
@@ -810,53 +758,58 @@ void Game::WeaponShop()
 		int iBuyOrNot;
 		int iGesture = NULL;
 
+		int iGetWeaponIndex = 0;
+		int iGetWeaponType = 0;	//Weapon.cpp에서 무기 인덱스와 타입을 가져올 놈들
+
+		int iUserGold = Player->ReturnUserInt(VARIABLE_GOLD);	//가독성을 높이기 위해 지역 변수 만들어서 대입
+
 		while (iGesture != CLOSE)
 		{
 			switch (iSelect)
 			{
 			case 1:
-				iBuyOrNot = DaggerPtr->PrintDaggerList(m_iUserGold, OwnWeapon);
-				iGesture = BuyScript(iBuyOrNot);
+				iBuyOrNot = DaggerPtr->PrintDaggerList(iUserGold, &iGetWeaponType, &iGetWeaponIndex);
+				iGesture = BuyScript(iBuyOrNot, iGetWeaponType, iGetWeaponIndex);
 				if (iGesture == PAGE_NEXT)
 					iSelect = 2;
 				else if (iGesture == PAGE_PREVIOUS)
 					iSelect = 6;
 				break;
 			case 2:
-				iBuyOrNot = GunPtr->PrintGunList(m_iUserGold, OwnWeapon);
-				iGesture = BuyScript(iBuyOrNot);
+				iBuyOrNot = GunPtr->PrintGunList(iUserGold, &iGetWeaponType, &iGetWeaponIndex);
+				iGesture = BuyScript(iBuyOrNot, iGetWeaponType, iGetWeaponIndex);
 				if (iGesture == PAGE_NEXT)
 					iSelect = 3;
 				else if (iGesture == PAGE_PREVIOUS)
 					iSelect = 1;
 				break;
 			case 3:
-				iBuyOrNot = SwordPtr->PrintSwordList(m_iUserGold, OwnWeapon);
-				iGesture = BuyScript(iBuyOrNot);
+				iBuyOrNot = SwordPtr->PrintSwordList(iUserGold, &iGetWeaponType, &iGetWeaponIndex);
+				iGesture = BuyScript(iBuyOrNot, iGetWeaponType, iGetWeaponIndex);
 				if (iGesture == PAGE_NEXT)
 					iSelect = 4;
 				else if (iGesture == PAGE_PREVIOUS)
 					iSelect = 2;
 				break;
 			case 4:
-				iBuyOrNot = WandPtr->PrintWandList(m_iUserGold, OwnWeapon);
-				iGesture = BuyScript(iBuyOrNot);
+				iBuyOrNot = WandPtr->PrintWandList(iUserGold, &iGetWeaponType, &iGetWeaponIndex);
+				iGesture = BuyScript(iBuyOrNot, iGetWeaponType, iGetWeaponIndex);
 				if (iGesture == PAGE_NEXT)
 					iSelect = 5;
 				else if (iGesture == PAGE_PREVIOUS)
 					iSelect = 3;
 				break;
 			case 5:
-				iBuyOrNot = BowPtr->PrintBowList(m_iUserGold, OwnWeapon);
-				iGesture = BuyScript(iBuyOrNot);
+				iBuyOrNot = BowPtr->PrintBowList(iUserGold, &iGetWeaponType, &iGetWeaponIndex);
+				iGesture = BuyScript(iBuyOrNot, iGetWeaponType, iGetWeaponIndex);
 				if (iGesture == PAGE_NEXT)
 					iSelect = 6;
 				else if (iGesture == PAGE_PREVIOUS)
 					iSelect = 4;
 				break;
 			case 6:
-				iBuyOrNot = HammerPtr->PrintHammerList(m_iUserGold, OwnWeapon);
-				iGesture = BuyScript(iBuyOrNot);
+				iBuyOrNot = HammerPtr->PrintHammerList(iUserGold, &iGetWeaponType, &iGetWeaponIndex);
+				iGesture = BuyScript(iBuyOrNot, iGetWeaponType, iGetWeaponIndex);
 				if (iGesture == PAGE_NEXT)
 					iSelect = 1;
 				else if (iGesture == PAGE_PREVIOUS)
@@ -869,7 +822,7 @@ void Game::WeaponShop()
 	}
 }
 
-int Game::BuyScript(int iBuyOrNot)
+int Game::BuyScript(int iBuyOrNot, int iGetWeaponType, int iGetWeaponIndex)
 {
 	//가게에서 물건 살때 동작... 이전 페이지 다음 페이지 구현을 위해 만들었음
 	if (iBuyOrNot == PAGE_NEXT)
@@ -886,8 +839,8 @@ int Game::BuyScript(int iBuyOrNot)
 	else
 	{
 		PrintBuyMessage(true);
-		m_iUserGold -= iBuyOrNot;
-		m_iHaveWeapon = WEAPON_OK;
+		Player->DeductGold(iBuyOrNot);
+		Player->ChangeWeapon(iGetWeaponType, iGetWeaponIndex);
 		return CLOSE;
 	}
 }
@@ -987,7 +940,7 @@ void Game::SaveMenu()
 				if (iAnotherSelect == 1)
 				{
 					DataCheck.close();
-					SaveData(iSelect);
+					Player->SaveUserData(iSelect);
 				}
 				else
 					break;
@@ -995,7 +948,7 @@ void Game::SaveMenu()
 			else
 			{
 				DataCheck.close();
-				SaveData(iSelect);
+				Player->SaveUserData(iSelect);
 			}
 			return;
 		}
@@ -1005,43 +958,10 @@ void Game::SaveMenu()
 	}
 }
 
-void Game::SaveData(int DataNumber)
-{
-	//파일 저장할 때 변수 순서->유저 이름, 공격력, 최대 생명력, 렙업하기 위한 경험치, 레벨, 골드, 현재 경험치, 현재 생명력
-	//다음 줄은 무기 여부 무기 있으면 1 쓰고 무기 타입, 무기 이름, 공격력, 골드 없으면 0 쓰고 파일 닫기
-	//몹 상태를 저장해야 할 필요가 있을까??
-	//ㄴ고심 끝에 몹 상태 저장 텍스트 파일을 해체하기로...
-
-	GameMap.BoxErase(WIDTH, HEIGHT);
-
-	string sFileName  = "SavePlayer" + to_string(DataNumber) + ".txt";
-	ofstream DataSave(sFileName);
-	DataSave << m_sUserName << " " << m_iUserAttack << " " << m_iUserMaxLife << " " << m_iUserMaxExp << " " << m_iUserLevel << " "
-		<< m_iUserGold << " " << m_iUserCurrentExp << " " << m_iUserCurrentLife << "\n";
-
-	if (m_iHaveWeapon == WEAPON_NO)
-		DataSave << m_iHaveWeapon;
-	else if (m_iHaveWeapon == WEAPON_OK)
-		DataSave << m_iHaveWeapon << " " << OwnWeapon->iWeaponType << " " << OwnWeapon->sWeaponName << " "
-		<< OwnWeapon->iWeaponPower << " " << OwnWeapon->iWeaponPrice;
-
-	DataSave.close();
-
-	gotoxy(27, 15);
-	cout << "저장 완료";
-
-	system("pause>null");
-}
-
 void Game::DeleteInfo()
 {
 	delete[] MonsterArr;
-	/*SwordPtr->~Sword();
-	DaggerPtr->~Dagger();
-	BowPtr->~Bow();
-	GunPtr->~Gun();
-	WandPtr->~Wand();
-	HammerPtr->~Hammer();*/
+
 	delete OwnWeapon;
 
 	delete WeaponPtr;
@@ -1052,7 +972,10 @@ void Game::DeleteInfo()
 	delete WandPtr;
 	delete HammerPtr;
 
+	delete Player;
+
 	//동적 할당된 놈들 해제
+	//동적할당 된 클래스를 동적해제 하면 알아서 소멸자가 호출되기 때문에 굳이 소멸자를 사전에 불러줘야 할 필요가 업엇다
 }
 
 Game::~Game()

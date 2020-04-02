@@ -1,5 +1,6 @@
 #pragma once
 #include "Headers.h"
+#include "Weapon.h"
 
 class User
 {
@@ -15,6 +16,11 @@ private:
 	int m_iHaveWeapon;	//무기 갖고 있나 아닌가...
 public:
 	User();
+	inline void gotoxy(int x, int y)
+	{
+		COORD Pos = { x, y };
+		SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE), Pos);
+	}
 	~User();
 };
 

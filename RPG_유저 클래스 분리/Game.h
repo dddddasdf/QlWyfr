@@ -2,6 +2,7 @@
 #include "Headers.h"
 #include "MapDraw.h"
 #include "Weapon.h"
+#include "User.h"
 
 struct Monster
 {
@@ -21,7 +22,7 @@ enum OUTCOME
 {
 	OUTCOME_DRAW,
 	OUTCOME_WIN,
-	OUTCOME_LOSE
+	OUTCOME_LOSE	//승패 출력을 위한 enum
 };
 
 class Game
@@ -37,17 +38,12 @@ private:
 	int m_iUserGold;	//소지 골드
 	int m_iUserLevel;	//레벨
 	int m_iHaveWeapon;	//무기 갖고 있나 아닌가...
+
+	User *Player;
 	//여기까지 유저 관련 변수
 
 	int m_iMonsterPopulation;	//몹 개체수
 	Monster *MonsterArr;
-	/*Weapon *WeaponPtr = new Weapon;
-	Sword *SwordPtr = new Sword;
-	Bow *BowPtr = new Bow;
-	Dagger *DaggerPtr = new Dagger;
-	Gun *GunPtr = new Gun;
-	Wand *WandPtr = new Wand;
-	Hammer *HammerPtr = new Hammer;*/
 	Weapon *WeaponPtr;
 	Sword *SwordPtr;
 	Bow *BowPtr;
@@ -59,7 +55,6 @@ private:
 public:
 	Game();
 	void GetName(string name);
-	void InitUserData();	//유저 정보 초기화
 	bool LoadDefaultUserData();	//디폴트 유저 파일 읽어오기, 텍스트를 성공적으로 읽어들였을 경우 true를 반환 아닐시 false를 반환하고 새게임이 시작되지 못하게 막음
 	bool InitMonsterData();	//몹 정보 초기화. InitUserInfo()와 똑같은 매커니즘
 	bool InitWeaponData();	//무기 정보 초기화. 저 둘을 베이스로 하지만 조금 다르다
@@ -74,12 +69,13 @@ public:
 	void ShowMonsterBattle(int MonsterNumber);	//전투 중 몹 정보 보여줌
 	void ShowResult(int MonsterNumber);	//몹 잡고 상세 스테이터스 보여줌
 	void ShowUserInfo();
+	void GetWeaponName();	
+	int GetWeaponPower();	//위 둘은 Weapon 클래스로부터 이름과 공격력을 가져오게 한다
 	void ShowMonsterInfo();
 	void WeaponShop();
-	int BuyScript(int iBuyOrNot);
+	int BuyScript(int iBuyOrNot, int iGetWeaponType, int iGetWeaponIndex);
 	void PrintBuyMessage(int YesOrNo);
 	void SaveMenu();
-	void SaveData(int DataNumber);	//데이터 저장
 	void DeleteInfo();
 	inline void gotoxy(int x, int y)
 	{
