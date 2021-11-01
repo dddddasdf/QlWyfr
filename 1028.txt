@@ -1,0 +1,22 @@
+맵 이동은 별도 스크립트 분리가 필요한가
+
+
+나중에 노드 GameObject를 Prefab으로 추출 필요
+
+
+
+생각해보니까 3D와 2D가 공존하는데 이걸 조합할 수 있는가
+->씬 분리하고 카메라 설정을 바꾸고
+
+
+맵 이동 구현 방식을 마우스로 클릭해서 옮길 경우 구현 난이도가 더 쉬워진다... 이 방법도 고려해봄직함
+
+
+맵 노드마다 인덱스 부여해서 마우스 클릭 감지 이벤트 스크립트로 인덱스 확인 후 매칭되는 맵 씬 로드
+
+
+
+https://iagreebut.tistory.com/46
+
+
+https://korstrix.github.io/unity/c%23/coding/know/Unity_C-_WarningList/
